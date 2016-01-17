@@ -8,10 +8,12 @@ let computeHash (md5 : System.Security.Cryptography.MD5) (s : string) =
 
 let ch = computeHash md5
 
-let adventCoin input = 
+let adventCoin prefix input = 
     Seq.initInfinite (fun i -> 
         let r = i |> sprintf "%s%d" input |> ch
-        if r.StartsWith("00000") then Some i
+        if r.StartsWith(prefix) then Some i
         else None)
     |> Seq.choose id |> Seq.take 1
 
+let partOne = String.replicate 5 "0" |> adventCoin
+let partTwo = String.replicate 6 "0" |> adventCoin
