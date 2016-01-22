@@ -24,7 +24,7 @@ let chars (input : string) =
 
 let diff (input : string) = input.Length - (input |> chars)  
 
-let calc input = input |> Seq.map diff |> Seq.sum
+let calc1 input = input |> Seq.map diff |> Seq.sum
 
 let t1 = """ "" """.Trim()
 let t2 = """ "abc" """.Trim()
@@ -33,4 +33,26 @@ let t4 = """ "\x27" """.Trim()
 
 let ts = [ t1; t2; t3; t4 ]
 
-let result1 = lines |> calc
+let encode' input = 
+    input |> Seq.fold (fun acc c ->
+                        match c with 
+                        | '"'  ->  '"' :: '\\'  :: acc
+                        | '\\' -> '\\' :: '\\' :: acc
+                        | c    -> c :: acc) ['"']
+    |> fun l -> '"' :: l
+    
+let encode : char seq -> string = 
+    encode'
+    >> List.rev
+    >> List.map (fun c -> sprintf "%c" c)
+    >> fun s -> System.String.Join("", s)
+
+let encodeLength : char seq -> int = encode' >> Seq.length
+
+
+let calc2 input = input |> Seq.map (fun l -> 
+                        (l |> encodeLength) - (l |> String.length))
+                  |> Seq.sum
+
+let result1 = lines |> calc1
+let result2 = lines |> calc2
