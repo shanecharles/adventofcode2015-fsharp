@@ -23,13 +23,13 @@ let lookSay (input : string) =
     | [] -> ""
     | h :: t -> lookSay' "" (1,h) t
 
-let lookSay' : string -> string = 
-    Seq.fold (fun acc x ->
-            match acc with
-            | (c,x') :: t when x' = x -> (c+1,x) :: t
-            | _ -> (1,x) :: acc) []
-    >> List.rev
-    >> Seq.collect (fun (c,x) -> sprintf "%d%c" c x)
-    >> function xs -> String.Join("",xs)
+let lookSay' (input : string) = 
+    input |> Seq.fold (fun acc c -> 
+                match acc with 
+                | (c', n) :: t when c' = c -> (c, n + 1) :: t
+                | _ -> (c, 1) :: acc) []
+    |> List.rev
+    |> List.map (fun (c, n) -> sprintf "%d%c" n c)
+    |> function cs -> System.String.Join("",cs)
 
 let run f input t = {1 .. t} |> Seq.fold (fun i _ -> i |> f) input |> Seq.length
