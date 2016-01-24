@@ -22,7 +22,11 @@ let success input = input |> hasConfusing |> not
                     && input |> multipleUniquePairs
 
 let input1 = "cqjxjnds"
-Seq.unfold (fun pwd -> let pwd' = increment pwd
-                       Some (pwd', pwd')) input1
-|> Seq.filter (fun pwd -> success pwd)
-|> Seq.head
+let next input =
+    Seq.unfold (fun pwd -> let pwd' = increment pwd
+                           Some (pwd', pwd')) input
+    |> Seq.filter (fun pwd -> success pwd)
+    |> Seq.head
+
+let result1 = input1 |> next
+let result2 = result1 |> next
