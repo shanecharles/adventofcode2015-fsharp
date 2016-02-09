@@ -32,3 +32,5 @@ let evolve ls =
   |> List.map fst
 
 let part1 = [1 .. 100] |> List.fold (fun ls _ -> evolve ls) lights |> List.length
+let addCorners ls = (0,0) :: (99,0) :: (0,99) :: (99,99) :: ls |> List.distinct 
+let part2 = [1 .. 100] |> List.fold (fun ls _ -> ls |> evolve |> addCorners) lights |> List.length
