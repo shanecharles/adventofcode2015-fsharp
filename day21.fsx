@@ -51,26 +51,42 @@ let purchases (ws : StoreItem list) arms rs =
 type Winner = 
   | Player
   | Boss
+  | NoWinner
 
 let simulate b p = 
-  let getAttack a b = 
-    match a.Attack - b.Defense with 
+  let getAttack a d = 
+    match a - d with
     | x when x < 1 -> 1
-    | x -> x
-  let pa = getAttack p b
-  let ba = getAttack b p
-  let ph = b.Hp / pa
-  let bh = p.Hp / ba
-  if ph <= bh && p.Hp - (ph * pa) > 0 then Player
-  else Boss
+    | x            -> x
+  let pAttack = getAttack p.Attack b.Defense
+  let bAttack = getAttack b.Attack p.Defense
 
-let simulatePlayerWin b s = 
+  let determineWinner x =
+    match (x*bAttack, x*pAttack) with
+    | _, bh when bh >= b.Hp -> Some Player
+    | ph, _ when ph >= p.Hp -> Some Boss
+    | _, _                  -> None
+
+  let hitsToWin = min (b.Hp / pAttack) (p.Hp / bAttack)
+  { hitsToWin .. (hitsToWin + 1)} |> Seq.choose determineWinner
+  |> Seq.head
+
+let simulateBattle b s = 
   let p = { Hp = 100; Attack = s.Damage; Defense = s.Armor }
   (simulate b p, s)
   
 let part1 = purchases weapons armor ringCombos
-            |> Seq.map (simulatePlayerWin boss)
+            |> Seq.map (simulateBattle boss)
             |> Seq.choose (fun (w,s) -> match w with 
                                         | Player -> Some s
                                         | _   -> None)
             |> Seq.sortBy (fun {Cost = c} -> c)
+            |> Seq.head
+
+let part2 = purchases weapons armor ringCombos
+            |> Seq.map (simulateBattle boss)
+            |> Seq.choose (fun (w,s) -> match w with 
+                                        | Boss -> Some s
+                                        | _   -> None)
+            |> Seq.sortByDescending (fun {Cost = c} -> c)
+            |> Seq.head
