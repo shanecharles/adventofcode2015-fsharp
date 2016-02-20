@@ -45,8 +45,7 @@ let purchases (ws : StoreItem list) arms rs =
             yield w + a
             for r in rs do 
               yield w + r
-              yield w + a + r        
-  }
+              yield w + a + r }
 
 type Winner = 
   | Player
