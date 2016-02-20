@@ -74,3 +74,4 @@ let instructions = file |> IO.File.ReadAllLines
                    |> Array.map createInstruction
                    
 let part1 = execute instructions (0,initRegisters)
+let part2 = execute instructions (0, {initRegisters with a = 1})
