@@ -6,7 +6,8 @@ let presents = file |> IO.File.ReadAllLines
                |> Array.map Int32.Parse
                |> Array.rev
 
-let balance = presents |> Array.sum |> fun x -> x / 3
+let balance3 = presents |> Array.sum |> fun x -> x / 3
+let balance4 = presents |> Array.sum |> fun x -> x / 4
 let hi,lo = presents |> Array.partition (fun x -> x > 100)
 
 let combos = 
@@ -15,7 +16,7 @@ let combos =
             |> Array.filter (fun x -> x >= 0)
             |> Array.toList ]
 
-let minLength bin = 
+let minLength balance bin ps = 
   let rec makeBin acc a =
     match acc |> Seq.sum with 
     | x when x >= balance -> acc
@@ -26,9 +27,9 @@ let minLength bin =
                makeBin (hd :: acc) tl
              else
                makeBin acc tl
-  makeBin (bin |> List.rev) (lo |> Array.toList)
+  makeBin (bin |> List.rev) (ps |> Array.toList)
 
-let lows = combos |> List.map (fun l -> minLength l)
+let lows = combos |> List.map (fun l -> minLength balance3 l lo)
 let minPresents = lows |> List.map List.length |> List.min
 let minBins = lows |> List.filter (fun l -> l |> List.length = minPresents)
               |> List.map List.rev
@@ -42,6 +43,8 @@ let makeCombosOf amount =
 let minProduct = makeCombosOf >> Seq.map (Seq.reduce (*)) >> Seq.min
 
 let part1 = minBins |> List.map (fun l -> (l |> List.reduce (*), l |> List.sum))
-            |> List.map (fun (p,x) -> p, balance - x |> minProduct)
+            |> List.map (fun (p,x) -> p, balance3 - x |> minProduct)
             |> List.map (fun (p,x) -> int64 p * int64 x)
             |> List.min
+
+let part2 = minLength balance4 [] presents |> List.map int64 |> List.reduce (*)
