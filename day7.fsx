@@ -45,6 +45,12 @@ let findWire (circuits : (string*string) []) wire =
   circuits |> Array.find (fun (w,_) -> w = wire) |> snd
 
 let part1 = WireSignal (findWire outputs) "a"
+
+let outputs2 = outputs |> Array.map (function 
+                                     | "b",_ -> "b",part1.ToString()
+                                     | w,n   -> w,n)
+
+let part2 = WireSignal (findWire outputs2) "a"
 // Reqs
 // - Signals provided by gate, another wire, or a specific value
 // - Wire can only receive from one source
