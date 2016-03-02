@@ -14,31 +14,31 @@ let (|RegexMatch|_|) pattern input =
   then [ for g in m.Groups -> g.Value ] |> List.tail |> Some
   else None
 
-let WireSignal circuit w =
+let WireSignal (circuit : string -> string) w =
   let cache = new Dictionary<string,uint16>()
-  let rec getSignal  (src : string -> string) wire = 
+  let rec getSignal wire = 
     let add w n = cache.Add(w,n) |> ignore; 
                   cache.[w]
     if cache.ContainsKey wire then cache.[wire]
     else
-      match wire |> src with 
-      | RegexMatch @"NOT (\w+)" [c] -> UInt16.MaxValue - (getSignal src c)
+      match wire |> circuit with 
+      | RegexMatch @"NOT (\w+)" [c] -> UInt16.MaxValue - (getSignal c)
       | RegexMatch @"(\w+) RSHIFT ([0-9]+)" [c; n] ->
-        (getSignal src c) >>> (Int32.Parse n)
+        (getSignal c) >>> (Int32.Parse n)
       | RegexMatch @"(\w+) LSHIFT ([0-9]+)" [c; n] ->
-        (getSignal src c) <<< (Int32.Parse n)
+        (getSignal c) <<< (Int32.Parse n)
       | RegexMatch @"([0-9]+) AND (\w+)" [n; a] ->
-        (UInt16.Parse n) &&& (getSignal src a)
+        (UInt16.Parse n) &&& (getSignal a)
       | RegexMatch @"([0-9]+) OR (\w+)" [n; a] ->
-        (UInt16.Parse n) ||| (getSignal src a)
+        (UInt16.Parse n) ||| (getSignal a)
       | RegexMatch @"(\w+) AND (\w+)" [a; b] ->
-        (getSignal src a) &&& (getSignal src b)
+        (getSignal a) &&& (getSignal b)
       | RegexMatch @"(\w+) OR (\w+)" [a; b] ->
-        (getSignal src a) ||| (getSignal src b)
+        (getSignal a) ||| (getSignal b)
       | RegexMatch @"([0-9]+)" [n]  -> UInt16.Parse n
-      | RegexMatch @"(\w+)" [c]     -> getSignal src c 
+      | RegexMatch @"(\w+)" [c]     -> getSignal c 
       |> add wire
-  getSignal circuit w
+  getSignal w
         
 let findWire (circuits : (string*string) []) wire =
   circuits |> Array.find (fun (w,_) -> w = wire) |> snd
