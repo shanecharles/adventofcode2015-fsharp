@@ -39,4 +39,6 @@ let replaceCount reps =
   |> Seq.length
 
 let crs = calcReplacements replacements
-let par1 = segments |> Seq.map crs |> Seq.map replaceCount |> Seq.sum
+let part1 = segments |> Seq.map crs |> Seq.map replaceCount |> Seq.sum
+
+let start = ['e']
