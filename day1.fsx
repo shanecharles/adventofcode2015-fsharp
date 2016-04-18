@@ -1,6 +1,15 @@
-﻿
-let test = "(())"
-
+﻿open System.IO
+let input = File.ReadAllText(__SOURCE_DIRECTORY__ + @"/input1.txt") 
+let move x = function
+             | '(' -> x + 1
+             | ')' -> x - 1
+             | _   -> failwith "Invalid char"
+let part1 = input |> Seq.fold move 0
+            |> printfn "Day 1 part 1: %d"
+let part2 = input |> Seq.scan move 0 |> Seq.takeWhile ((<>) -1)
+            |> Seq.length
+            |> printfn "Day 1 part 2: %d"
+(*
 let elevator : string -> int = 
     Seq.fold (fun floor dir -> 
                     match dir with 
@@ -20,6 +29,6 @@ let firstBasement : string -> int =
                     (f', (i + 1), p')) (0, 1, 0)
     >> function (_, _, pos) -> pos
 
-let input = System.IO.File.ReadAllText(__SOURCE_DIRECTORY__ + @"\input1.txt") 
 let floor = input |> elevator
 let first = input |> firstBasement
+*)
