@@ -24,8 +24,10 @@ let test = "1x2x3"
 let parseDimensions (p : string) = p.Split('x') |> Array.map Int32.Parse
                                    |> fun [|l; w; h|] -> (l, w, h)
 
-let presents = IO.File.ReadAllLines(__SOURCE_DIRECTORY__ + @"\input2.txt")
+let presents = IO.File.ReadAllLines(__SOURCE_DIRECTORY__ + @"/input2.txt")
                |> Array.map parseDimensions
 
 let totalWrapping = Array.map presentWrapping >> Array.sum
 let totalRibbon = Array.map presentRibbon >> Array.sum
+presents |> totalWrapping |> printfn "Day 2 part 1: %d"
+presents |> totalRibbon |> printfn "Day 2 part 2: %d"
