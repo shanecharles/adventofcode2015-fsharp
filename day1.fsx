@@ -4,8 +4,7 @@ let move x = function
              | '(' -> x + 1
              | ')' -> x - 1
              | _   -> failwith "Invalid char"
-let part1 = input |> Seq.fold move 0
-            |> printfn "Day 1 part 1: %d"
+let part1 = input |> Seq.fold move 0 |> printfn "Day 1 part 1: %d"
 let part2 = input |> Seq.scan move 0 |> Seq.takeWhile ((<>) -1)
             |> Seq.length
             |> printfn "Day 1 part 2: %d"
