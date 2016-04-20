@@ -36,8 +36,7 @@ input |> Seq.mapi (fun i x -> (whoDelivers i, x))
 
 // Part 2 - initial
 let part2' dirs = 
-    dirs 
-    |> Seq.fold (fun (p1, p2, (s : (int * int) Set)) d -> 
+    dirs |> Seq.fold (fun (p1, p2, (s : (int * int) Set)) d -> 
                     let p' = move p1 d
                     (p2, p', (s.Add p'))) ((0,0), (0,0), Set.ofList [(0,0)])
     |> fun (_, _, s) -> s |> Seq.length
