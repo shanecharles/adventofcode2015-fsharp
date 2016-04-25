@@ -6,17 +6,17 @@ let move (x,y) = function
     | '>' -> (x + 1, y)
     | _   -> (x, y)
 
-let part1 = Seq.scan move (0,0) >> Seq.distinct >> Seq.length
+let part1 : string -> int = Seq.scan move (0,0) >> Seq.distinct >> Seq.length
 
-// Part 3 - third refactor
+// Part 2 - third refactor
 let part2 : string -> int = 
   Seq.fold (fun ((h :: _) as xs ,ys) x -> (ys, move h x :: xs)) ([(0,0)],[(0,0)])
-  >> function (xs,ys) -> xs @ ys
+  >> fun (xs,ys) -> xs @ ys
   >> Seq.distinct 
   >> Seq.length
 
 input |> part1 |> printfn "Day 3 part 1: %d"
-input |> part2 |> printfn "Day 3 part 2: %d"
+input |> part2 |> printfn "Day 3 part 2: %d"  
 
 // Part 2 - secondary refactor
 type Delivery =
@@ -29,7 +29,7 @@ input |> Seq.mapi (fun i x -> (whoDelivers i, x))
                             | (Santa, h::_, _) -> ((move h x) :: s, r)
                             | (Robo, _, h::_)  -> (s, (move h x) :: r))
         ([(0,0)],[(0,0)])
-      |> (fun (s,r) -> s @ r)
+      ||> (@)
       |> Seq.distinct
       |> Seq.length
       |> printfn "Day 3 part 2: %d"
