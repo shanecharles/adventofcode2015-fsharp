@@ -1,1 +1,1 @@
-### Advent of Code 2015 in F#
+### F# version for Advent of Code 2015
