@@ -13,7 +13,7 @@ let adventCoin prefix input =
         let r = i |> sprintf "%s%d" input |> ch
         if r.StartsWith(prefix) then Some i
         else None)
-    |> Seq.choose id |> Seq.take 1
+    |> Seq.choose id |> Seq.head
 
-let partOne = String.replicate 5 "0" |> adventCoin
-let partTwo = String.replicate 6 "0" |> adventCoin
+input |> adventCoin "00000" |> printfn "Day 4 part 1: %d"
+input |> adventCoin "000000" |> printfn "Day 4 part 2: %d"

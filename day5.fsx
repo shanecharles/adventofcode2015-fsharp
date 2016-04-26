@@ -47,10 +47,10 @@ let NaughtyOrNice' = function
     | IsNiceKid' -> Nice
     | _         -> Naughty
     
-let strings = System.IO.File.ReadAllLines(__SOURCE_DIRECTORY__ + @"\input5.txt")
+let input = System.IO.File.ReadAllLines(__SOURCE_DIRECTORY__ + "/input5.txt")
 
-let NiceCount f = Array.map f >> Array.filter (fun n -> n = Nice)
-                  >> Array.length
+let NiceCount f = Seq.map f >> Seq.filter (fun n -> n = Nice)
+                  >> Seq.length
 
-let niceKids = strings |> NiceCount NaughtyOrNice
-let niceKids' = strings |> NiceCount NaughtyOrNice'
+input |> NiceCount NaughtyOrNice |> printfn "Day 5 part 1: %d"
+input |> NiceCount NaughtyOrNice' |> printfn "Day 5 part 2: %d"
