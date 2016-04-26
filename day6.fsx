@@ -1,33 +1,12 @@
-﻿let section (x1,y1) (x2,y2) =
+﻿let input = System.IO.File.ReadAllLines(__SOURCE_DIRECTORY__ + "/input6.txt") |> Seq.filter (System.String.IsNullOrEmpty >> not)
+let section (x1,y1) (x2,y2) =
     seq { for x in x1 .. x2 do 
             for y in y1 .. y2 do 
                 yield (x,y) }
-
-let isOn (s : (int * int) Set) = s.Contains
-let turnOn (s : (int * int) Set) light = s.Add(light)
-let turnOff (s : (int * int) Set) light = s.Remove light
-let toggleLight s light =
-    match light |> isOn s with
-    | true -> turnOff s light
-    | _    -> turnOn s light
-
-let turnLightsOn s = Seq.fold turnOn s
-let turnLightsOff s = Seq.fold turnOff s
-let toggleLights s = Seq.fold toggleLight s
-
-let sampleOn = "turn on 489,959 through 759,964"
-let sampleOff = "turn off 820,516 through 871,914"
-let sampleToggle = "toggle 756,965 through 812,992"
-
 type Action = 
     | On
     | Off
     | Toggle
-
-let getAction = function
-    | On  -> turnLightsOn
-    | Off -> turnLightsOff
-    | _   -> toggleLights
 
 let parseAction (line : string) =
     let pp (p :string) =
@@ -35,47 +14,35 @@ let parseAction (line : string) =
         | [| x; y |] -> (System.Int32.Parse(x), System.Int32.Parse(y))
  
     match line.Split([|' '|]) with 
-    | [| "toggle"; sg; _; eg |]  -> (pp sg, pp eg), Toggle
-    | [| _; "on"; sg; _; eg |]   -> (pp sg, pp eg), On
-    | [| _; "off"; sg; _; eg |]  -> (pp sg, pp eg), Off
+    | [| "toggle"; sg; _; eg |]  -> Toggle, (pp sg, pp eg)
+    | [| _; "on"; sg; _; eg |]   -> On, (pp sg, pp eg)
+    | [| _; "off"; sg; _; eg |]  -> Off, (pp sg, pp eg)
     | _ -> failwith "womp womp"
 
-let grid, act = parseAction sampleOn
+let part1 input = 
+  let ls : int [,] = Array2D.zeroCreate 1000 1000
+  let isOn (x,y) = ls.[x,y] = 1
+  let turnOn (x,y) = ls.[x,y] <- 1
+  let turnOff (x,y) = ls.[x,y] <- 0
+  let toggle x = match x |> isOn with
+                 | true -> turnOff x
+                 | _    -> turnOn x
+  input |> Seq.map parseAction 
+  |> Seq.iter (fun (act, (x,y)) -> let f = act |> function On -> turnOn | Off -> turnOff | _ -> toggle
+                                   section x y |> Seq.iter f)
+  section (0,0) (999,999) |> Seq.filter isOn |> Seq.length
 
-let input = System.IO.File.ReadAllLines(__SOURCE_DIRECTORY__ + @"\input6.txt")
+let part2 input = 
+  let ls : int [,] = Array2D.zeroCreate 1000 1000
+  let inc z (x,y) = ls.[x,y] <- ls.[x,y] + z
+  let dec (x,y) = match ls.[x,y] with
+                  | v when v > 0 -> ls.[x,y] <- v - 1
+                  | _ -> ()
+  input |> Seq.map parseAction 
+  |> Seq.iter (fun (act, (x,y)) -> let f = act |> function On -> inc 1 | Off -> dec | _ -> inc 2
+                                   section x y |> Seq.iter f)
+  section (0,0) (999,999) |> Seq.map (fun (x,y) -> ls.[x,y]) |> Seq.sum
+                 
 
-let actions = input |> Array.map parseAction
-
-// Part 2
-let increase amt (m : Map<(int * int), int>) light = 
-    let b = match m.TryFind light with
-            | Some b -> b + amt
-            | None   -> amt
-    m.Add(light, b)
-
-let turnLightsOn' m ls = ls |> Seq.fold (increase 1) m
-let toggleLights' m ls = ls |> Seq.fold (increase 2) m
-let turnLightsOff' (m : Map<(int * int), int>) lights =
-    let turnOff (m' : Map<(int * int), int>) light = 
-        match m'.TryFind light with
-        | Some b when b > 1 -> m'.Add (light, b - 1)
-        | Some b            -> m'.Remove light
-        | _                 -> m'
-
-    lights |> Seq.fold (fun m'' l -> turnOff m'' l) m
-
-let getAction' = function
-    | On  -> turnLightsOn'
-    | Off -> turnLightsOff'
-    | _   -> toggleLights'
-
-let totalLightsOn = actions |> Array.fold (fun lights (g, a) ->
-                        g ||> section |> (getAction a) lights) (Set.empty)
-                    |> Set.count
-
-let totalBrightness = 
-    actions |> Array.fold (fun lights (g, a) ->
-                                    g ||> section |> (getAction' a) lights) (Map.empty)
-    |> Map.toSeq
-    |> Seq.map snd
-    |> Seq.sum 
+input |> part1 |> printfn "Day 6 part 1: %d"
+input |> part2 |> printfn "Day 6 part 2: %d"
